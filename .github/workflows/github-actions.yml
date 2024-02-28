@@ -20,7 +20,8 @@ jobs:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
       run: |
-        git_hash=$(git rev-parse --short "$GITHUB_SHA")
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
         echo ${{ secrets.DOCKER_PAT }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-        docker build . --file Dockerfile --tag "${{ secrets.DOCKER_USER }}/pythonapp:$(git_hash)"
-        docker push "${{ secrets.DOCKER_USER }}/pythonapp:$(git_hash)"
+        docker build . --file Dockerfile --tag "${{ secrets.DOCKER_USER }}/pythonapp:${{ env.COMMIT_SHORT_SHA }}"
+        docker push "${{ secrets.DOCKER_USER }}/pythonapp:${{ env.COMMIT_SHORT_SHA }}"
