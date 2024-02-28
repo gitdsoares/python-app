@@ -15,5 +15,11 @@ jobs:
     steps:
     - name: Git Checkout
       uses: actions/checkout@v3
-    - name: Build
-      run: docker build . --file Dockerfile --tag pythonapp:$(date +%s)
+    - name: Build & Push
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+      run: |
+        docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PAT }}
+        docker build . --file Dockerfile --tag pythonapp:$(date +%s)
+        docker push "${{ secrets.DOCKER_USER }}/pythonapp:$(date +%s)"
