@@ -1,4 +1,4 @@
-name: Python App CI CD
+name: Python App Pipeline
 
 on:
   push:
