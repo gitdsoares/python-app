@@ -34,7 +34,6 @@ jobs:
           type=semver,pattern={{version}}.{{major}}.{{minor}}    
 
     - name: Build & Push
-      id: build-and-push
       uses: docker/build-push-action@v5
       with:
         context: .
