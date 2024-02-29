@@ -38,5 +38,5 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}
+        tags: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
         push: true
