@@ -37,5 +37,5 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        tags: "${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
+        tags: "${{ steps.tag_version.outputs.new_tag }}"
         push: true
