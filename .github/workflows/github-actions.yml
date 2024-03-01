@@ -5,12 +5,12 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to run against.'
-        type: environment
-        required: true
+  # workflow_dispatch:
+  #   inputs:
+  #     environment:
+  #       description: 'Please, select an environment to run against:'
+  #       type: environment
+  #       required: true
 
 env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
