@@ -52,8 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: dev
-    
+      name: dev 
     steps:
       - name: Deployment
         run: echo "Deploying to dev"
@@ -63,8 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: dev
     environment:
-      name: qa
-    
+      name: qa 
     steps:
       - name: Deployment
         run: echo "Deploying to qa"
@@ -75,7 +73,6 @@ jobs:
     needs: qa
     environment:
       name: prd
-    
     steps:
       - name: Deployment
         run: echo "Deploying to prd"
