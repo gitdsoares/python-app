@@ -40,6 +40,13 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY }}
           password: ${{ secrets.DOCKER_PAT }}
 
+      - name: Build & Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
+          push: true
+
       - name: Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -52,14 +59,7 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
-
-      - name: Build & Push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          tags: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
-          push: true
-
+  
   dev:
     name: DEV
     runs-on: ubuntu-latest
