@@ -1,4 +1,4 @@
-name: Python App CI
+name: P-UNIT-PROJECT-MICROSERVICE
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        environment: ['dev', 'qa', 'prd']
+        environment: [ "dev", "qa", "prd" ]
 
     environment:
       name: ${{ matrix.environment }}
