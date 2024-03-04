@@ -35,6 +35,15 @@ jobs:
           DEFAULT_BUMP: patch
           INITIAL_VERSION: 1.0.0
 
+      - name: Trivy File Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          exit-code: '1'
+          format: 'sarif'
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          output: 'trivy-results.sarif'
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
