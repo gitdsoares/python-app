@@ -47,7 +47,10 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.APP_NAME }}:security-test
+          exit-code: '1'
+          vuln-type: 'os,library'
           format: sarif
+          severity: 'MEDIUM,HIGH,CRITICAL'
           output: trivy-results.sarif
 
       - name: Publish Trivy Report
