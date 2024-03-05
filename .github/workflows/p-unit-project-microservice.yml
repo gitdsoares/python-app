@@ -13,13 +13,62 @@ on:
 
 env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  IMAGE_NAME: ${{ vars.APP }}
+  APP_NAME: ${{ vars.APP }}
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
+  REGION: ${{ vars.REGION }}
 
 jobs:
+  compliance:
+    name: Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Bandit SAST Scan
+        run: bandit -ll -ii -r . -f json -o bandit-results.json
+
+      - name: Trivy File Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          exit-code: '1'
+          format: sarif
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          output: trivy-results.sarif
+
+      - name: Build Docker Image
+        run: docker build -f Dockerfile -t ${{ env.REGISTRY }}/${{ env.APP_NAME }}:security-test .
+
+      - name: Trivy Docker Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.APP_NAME }}:security-test"
+          format: sarif
+          output: trivy-results.sarif
+
+      - name: Publish Trivy Report
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Publish Bandit Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-results
+          path: bandit-results.json
+
   build:
     name: Build & Push
     runs-on: ubuntu-latest
     permissions: write-all
+    needs: compliance
+
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -35,15 +84,6 @@ jobs:
           DEFAULT_BUMP: patch
           INITIAL_VERSION: 1.0.0
 
-      - name: Trivy File Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          exit-code: '1'
-          format: 'sarif'
-          severity: 'MEDIUM,HIGH,CRITICAL'
-          output: 'trivy-results.sarif'
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -51,44 +91,35 @@ jobs:
           password: ${{ secrets.DOCKER_PAT }}
 
       - name: Build & Push
+        id: build_push
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
+          tags: "${{ env.REGISTRY }}/${{ env.APP_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
           push: true
 
-      - name: Trivy Image Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "docker.io/${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
-          format: sarif
-          output: trivy-results.sarif
-
-      - name: Publish Trivy Report
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: trivy-results.sarif
+    outputs:
+      IMAGE_TAG: ${{ steps.tag_version.outputs.new_tag }}
 
   dev:
     name: DEV
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: dev 
+      name: dev
     steps:
       - name: Deployment
-        run: echo "Deploying to dev"
-
+        run: echo "Deploying the version ${{ needs.build.outputs.IMAGE_TAG }} to dev."
+    
   qa:
     name: QA
     runs-on: ubuntu-latest
     needs: dev
     environment:
-      name: qa 
+      name: qa
     steps:
       - name: Deployment
-        run: echo "Deploying to qa"
+        run: echo "Deploying the version ${{ needs.build.outputs.IMAGE_TAG }} to qa."
 
   prd:
     name: PRD
@@ -98,4 +129,4 @@ jobs:
       name: prd
     steps:
       - name: Deployment
-        run: echo "Deploying to prd"
+        run: echo "Deploying the version ${{ needs.build.outputs.IMAGE_TAG }} to prd."
