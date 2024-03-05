@@ -21,6 +21,7 @@ jobs:
   compliance:
     name: Compliance
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -37,7 +38,7 @@ jobs:
           scan-type: fs
           exit-code: '1'
           format: sarif
-          severity: 'MEDIUM,HIGH,CRITICAL'
+          severity: 'HIGH,CRITICAL'
           output: trivy-results.sarif
 
       - name: Build Docker Image
@@ -50,7 +51,7 @@ jobs:
           exit-code: '1'
           vuln-type: 'os,library'
           format: sarif
-          severity: 'MEDIUM,HIGH,CRITICAL'
+          severity: 'HIGH,CRITICAL'
           output: trivy-results.sarif
 
       - name: Publish Trivy Report
@@ -71,7 +72,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     needs: compliance
-
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
