@@ -1,5 +1,4 @@
-# FROM python:3.13.0a4-alpine3.19
-FROM python:alpine
+FROM python:3.13.0a4-alpine3.19
 
 RUN mkdir WORK_REPO
 
