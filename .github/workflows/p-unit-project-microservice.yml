@@ -46,7 +46,7 @@ jobs:
       - name: Trivy Docker Image Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "${{ env.APP_NAME }}:security-test"
+          image-ref: ${{ env.APP_NAME }}:security-test
           format: sarif
           output: trivy-results.sarif
 
