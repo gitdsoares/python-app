@@ -15,6 +15,7 @@ on:
 
 jobs:
   compliance:
+    name: Compliance
     uses: gitdsoares/templates/.github/workflows/compliance.yml@main
     permissions: write-all
     with:
