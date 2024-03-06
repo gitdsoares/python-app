@@ -17,60 +17,12 @@ env:
 
 jobs:
   compliance:
-    name: Compliance
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Prerequisites
-        run: pip install bandit
-
-      - name: Bandit SAST Scan
-        run: bandit -ll -ii -r . -f json -o bandit-results.json
-
-      - name: Trivy File Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          exit-code: 1
-          format: sarif
-          severity: HIGH,CRITICAL
-          output: trivy-results.sarif
-
-      - name: Build Docker Image
-        run: docker build -f Dockerfile -t ${{ env.APP_NAME }}:security-test .
-
-      - name: Docker Scout Image Scan
-        uses: docker/scout-action@v1
-        with: 
-          dockerhub-user: ${{ secrets.DOCKER_REGISTRY }}
-          dockerhub-password: ${{ secrets.DOCKER_PAT }}
-          command: quickview,cves
-          exit-code: true
-          only-severities: high,critical
-          sarif-file: scout-results.sarif
-
-      - name: Publish Trivy Report
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: trivy-results.sarif
-
-      - name: Publish Bandit Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: bandit-results
-          path: bandit-results.json
-
-      - name: Publish Scout Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: scout-results
-          path: scout-results.sarif
+    uses: gitdsoares/templates/compliance.yml@main
+    with:
+      APP_NAME: $APP_NAME
+    secrets:
+      DOCKER_REGISTRY: $REGISTRY
+      DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
 
   build:
     name: Build
