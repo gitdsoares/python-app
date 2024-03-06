@@ -42,15 +42,12 @@ jobs:
       - name: Build Docker Image
         run: docker build -f Dockerfile -t ${{ env.APP_NAME }}:security-test .
 
-      - name: Trivy Docker Image Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.APP_NAME }}:security-test
-          exit-code: 1
-          vuln-type: os,library
-          format: sarif
-          severity: HIGH,CRITICAL
-          output: trivy-results.sarif
+      - name: Docker Scout Image Scan
+        uses: docker/scout-action@v1
+        with: 
+          dockerhub-user: ${{ secrets.DOCKER_REGISTRY }}
+          dockerhub-password: ${{ secrets.DOCKER_PAT }}
+          command: quickview,cves
 
       - name: Publish Trivy Report
         uses: github/codeql-action/upload-sarif@v3
