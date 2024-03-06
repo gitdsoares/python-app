@@ -17,7 +17,7 @@ env:
 
 jobs:
   compliance:
-    uses: gitdsoares/templates/compliance.yml@main
+    uses: gitdsoares/templates/.github/workflows/compliance.yml@main
     with:
       APP_NAME: $APP_NAME
     secrets:
