@@ -48,6 +48,8 @@ jobs:
           dockerhub-user: ${{ secrets.DOCKER_REGISTRY }}
           dockerhub-password: ${{ secrets.DOCKER_PAT }}
           command: quickview,cves
+          only-severities: high,critical
+          sarif-file: scout-results.sarif
 
       - name: Publish Trivy Report
         uses: github/codeql-action/upload-sarif@v3
@@ -61,6 +63,13 @@ jobs:
         with:
           name: bandit-results
           path: bandit-results.json
+
+      - name: Publish Scout Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scout-results
+          path: scout-results.sarif
 
   build:
     name: Build
