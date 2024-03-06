@@ -18,6 +18,7 @@ env:
 jobs:
   compliance:
     uses: gitdsoares/templates/.github/workflows/compliance.yml@main
+    permissions: write-all
     with:
       APP_NAME: $APP_NAME
     secrets:
