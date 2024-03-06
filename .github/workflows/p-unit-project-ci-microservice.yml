@@ -10,20 +10,17 @@ on:
       - closed
     branches:
       - main
-
-env:
-  REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  APP_NAME: ${{ vars.APP }}
+  
+  workflow_dispatch:
 
 jobs:
   compliance:
-    name: Compliance
     uses: gitdsoares/templates/.github/workflows/compliance.yml@main
     permissions: write-all
     with:
-      APP_NAME: $APP_NAME
+      APP_NAME: ${{ vars.APP }}
     secrets:
-      DOCKER_REGISTRY: $REGISTRY
+      DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
       DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
 
   build:
@@ -56,7 +53,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: "${{ env.REGISTRY }}/${{ env.APP_NAME }}:${{ steps.tag_version.outputs.new_tag }}"
+          tags: "${{ secrets.DOCKER_REGISTRY }}/${{ vars.APP }}:${{ steps.tag_version.outputs.new_tag }}"
           push: true
 
     outputs:
