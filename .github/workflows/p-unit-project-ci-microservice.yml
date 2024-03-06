@@ -1,4 +1,4 @@
-name: P-UNIT-PROJECT-MICROSERVICE
+name: P-UNIT-PROJECT-CI-MICROSERVICE
 
 on:
   push:
@@ -14,8 +14,6 @@ on:
 env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
   APP_NAME: ${{ vars.APP }}
-  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
-  REGION: ${{ vars.REGION }}
 
 jobs:
   compliance:
@@ -26,7 +24,7 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v4
 
-      - name: Install Bandit
+      - name: Install Prerequisites
         run: pip install bandit
 
       - name: Bandit SAST Scan
@@ -36,9 +34,9 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
-          exit-code: '1'
+          exit-code: 1
           format: sarif
-          severity: 'HIGH,CRITICAL'
+          severity: HIGH,CRITICAL
           output: trivy-results.sarif
 
       - name: Build Docker Image
@@ -48,10 +46,10 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.APP_NAME }}:security-test
-          exit-code: '1'
-          vuln-type: 'os,library'
+          exit-code: 1
+          vuln-type: os,library
           format: sarif
-          severity: 'HIGH,CRITICAL'
+          severity: HIGH,CRITICAL
           output: trivy-results.sarif
 
       - name: Publish Trivy Report
@@ -68,15 +66,14 @@ jobs:
           path: bandit-results.json
 
   build:
-    name: Build & Push
+    name: Build
     runs-on: ubuntu-latest
-    permissions: write-all
     needs: compliance
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
+          fetch-depth: 0
 
       - name: Bump Version Tag
         id: tag_version
@@ -103,33 +100,3 @@ jobs:
 
     outputs:
       IMAGE_TAG: ${{ steps.tag_version.outputs.new_tag }}
-
-  dev:
-    name: DEV
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: dev
-    steps:
-      - name: Deployment
-        run: echo "Deploying the version ${{ needs.build.outputs.IMAGE_TAG }} to dev."
-    
-  qa:
-    name: QA
-    runs-on: ubuntu-latest
-    needs: dev
-    environment:
-      name: qa
-    steps:
-      - name: Deployment
-        run: echo "Deploying the version ${{ needs.build.outputs.IMAGE_TAG }} to qa."
-
-  prd:
-    name: PRD
-    runs-on: ubuntu-latest
-    needs: qa
-    environment:
-      name: prd
-    steps:
-      - name: Deployment
-        run: echo "Deploying the version ${{ needs.build.outputs.IMAGE_TAG }} to prd."
