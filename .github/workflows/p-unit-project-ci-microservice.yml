@@ -48,6 +48,7 @@ jobs:
           dockerhub-user: ${{ secrets.DOCKER_REGISTRY }}
           dockerhub-password: ${{ secrets.DOCKER_PAT }}
           command: quickview,cves
+          exit-code: true
           only-severities: high,critical
           sarif-file: scout-results.sarif
 
