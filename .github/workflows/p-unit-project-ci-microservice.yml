@@ -26,6 +26,7 @@ jobs:
     name: Build
     uses: gitdsoares/templates/.github/workflows/build.yml@main
     needs: compliance
+    permissions: write-all
     with:
       APP_NAME: ${{ vars.APP_NAME }}
     secrets:
