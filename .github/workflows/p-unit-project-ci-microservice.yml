@@ -26,9 +26,9 @@ jobs:
     name: Build
     uses: gitdsoares/templates/.github/workflows/build.yml@main
     needs: compliance
-    permissions: write-all
     with:
       APP_NAME: ${{ vars.APP_NAME }}
     secrets:
       DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-      DOCKER_PAT: ${{ secrets.DOCKER_PAT }}  
+      DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+      GIT_PAT: ${{ secrets.GIT_PAT }}
