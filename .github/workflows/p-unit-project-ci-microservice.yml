@@ -1,17 +1,22 @@
 name: P-UNIT-PROJECT-CI-MICROSERVICE-PYTHON
 
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
   pull_request:
     types:
       - closed
     branches:
       - main
+    paths:
+      - 'src/**'
 
 jobs:
+  tests:
+    name: Tests
+    uses: gitdsoares/templates/.github/workflows/tests.yml@main
+    with:
+      APP_NAME: ${{ vars.APP_NAME }}
+
   compliance:
     name: Compliance
     uses: gitdsoares/templates/.github/workflows/compliance.yml@main
@@ -21,14 +26,18 @@ jobs:
     secrets:
       DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
       DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
   build:
     name: Build
     uses: gitdsoares/templates/.github/workflows/build.yml@main
-    needs: compliance
+    needs:
+      - tests
+      - compliance
     with:
       APP_NAME: ${{ vars.APP_NAME }}
     secrets:
       DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
       DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
       GIT_PAT: ${{ secrets.GIT_PAT }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
