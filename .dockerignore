@@ -1,0 +1,23 @@
+# Docker files
+Dockerfile
+.dockerignore
+
+# Python files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# S.O files
+.DS_Store
+Thumbs.db
+
+# Virtual environment files
+venv/
+ENV/
+
+# DB files
+*.sqlite
